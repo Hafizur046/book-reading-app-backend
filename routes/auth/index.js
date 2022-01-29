@@ -1,10 +1,11 @@
 const express = require("express");
 const authRoutes = express.Router();
 
-const githubAuthRoute = require("./github");
-const removeSession = require("./removeSession");
+module.exports = ({ store }) => {
+  const githubAuthRoute = require("./github");
+  const removeSession = require("./removeSession");
 
-authRoutes.get("/github", githubAuthRoute);
-authRoutes.get("/remove", removeSession);
-
-module.exports = authRoutes;
+  authRoutes.get("/github", githubAuthRoute);
+  authRoutes.get("/remove", removeSession({ store }));
+  return authRoutes;
+};

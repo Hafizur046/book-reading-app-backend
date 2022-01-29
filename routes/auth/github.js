@@ -1,33 +1,48 @@
-const { User } = require("../../models");
+const { User, Session } = require("../../models");
 const getUserInfo = require("./github_user_info");
 
 module.exports = async function githubAuthRoute(req, res) {
-  console.log("sid:", req.session.id);
-  console.log(req.session);
-  const githubAccountInfo = await getUserInfo(req.query.code);
-  if (!githubAccountInfo) {
-    res.json({ error: "motherfucker stop tryinna do shits" });
-    return;
-  }
+  try {
+    console.log(req.session);
+    const githubAccountInfo = await getUserInfo(req.query.code);
+    if (!githubAccountInfo) {
+      res.json({ error: "motherfucker stop tryinna do shits" });
+      return;
+    }
 
-  let user = await User.findOne({ githubId: githubAccountInfo.id });
-  if (!user) {
-    const user = new User({
-      username: githubAccountInfo.login,
-      githubId: githubAccountInfo.id,
-      avatarUrl: githubAccountInfo.avatar_url,
-      githubUrl: githubAccountInfo.url,
-      email: githubAccountInfo.email,
+    let user = await User.findOne({ githubId: githubAccountInfo.id });
+    let session = user && (await Session.findOne({ user_id: user._id }));
+    if (!user) {
+      user = new User({
+        username: githubAccountInfo.login,
+        githubId: githubAccountInfo.id,
+        avatarUrl: githubAccountInfo.avatar_url,
+        githubUrl: githubAccountInfo.url,
+        email: githubAccountInfo.email,
+      });
+      let dbResponse = await user.save();
+      user = dbResponse;
+      session = new Session({ user_id: user._id });
+    }
+
+    //this session would be later used to allow individual session destroy action
+    session.sessions.push({
+      sid: req.session.id,
+      timestamp: new Date(),
+      device_name: "Generic123",
     });
-    let dbResponse = await user.save();
-    user = dbResponse;
+    await session.save();
+
+    req.session.userId = user._id;
+    req.session.githubId = githubAccountInfo.id;
+    req.session.username = githubAccountInfo.login;
+
+    //console.log(githubAccountInfo);
+    res.json({
+      username: githubAccountInfo.login,
+      avatarUrl: githubAccountInfo.avatar_url,
+    });
+  } catch (err) {
+    console.log(err);
   }
-
-  req.session.userId = user._id;
-
-  //console.log(githubAccountInfo);
-  res.json({
-    username: githubAccountInfo.username,
-    avatarUrl: githubAccountInfo.avatar_url,
-  });
 };

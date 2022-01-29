@@ -3,6 +3,9 @@ const session = require("express-session");
 const redis = require("redis");
 const connectRedis = require("connect-redis");
 
+//importing classes and functions
+const StoreConstructor = require("./auth/storeWrapper");
+
 //initializing express router
 const router = express.Router();
 
@@ -23,10 +26,10 @@ redisClient.on("connect", function () {
 
 //router.set("trust proxy", 1); // trust first proxy
 //configuring express -session
-const store = new RedisStore({ client: redisClient });
+const redisStore = new RedisStore({ client: redisClient });
 router.use(
   session({
-    store: store,
+    store: redisStore,
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: true,
@@ -34,11 +37,11 @@ router.use(
   })
 );
 
-store.all((err, data) => console.log(data));
+const store = new StoreConstructor(redisStore);
 
 //importing routes
 const authRoutes = require("./auth");
 
-router.use("/auth", authRoutes);
+router.use("/auth", authRoutes({ store }));
 
 module.exports = router;
