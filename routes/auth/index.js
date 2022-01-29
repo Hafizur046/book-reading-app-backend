@@ -8,6 +8,6 @@ module.exports = ({ store }) => {
 
   authRoutes.get("/github", githubAuthRoute);
   authRoutes.get("/sessions", getSessions);
-  authRoutes.get("/remove", removeSession({ store }));
+  authRoutes.get("/remove/:sid", removeSession({ store }));
   return authRoutes;
 };

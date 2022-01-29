@@ -6,8 +6,8 @@ require("dotenv").config();
 
 //connecting to database
 mongoose.connect(process.env.DB_URI, {
-  useUnifiedTopology: true,
-  useNewUrlParser: true,
+  //useUnifiedTopology: true,
+  //useNewUrlParser: true,
 });
 let db = mongoose.connection;
 db.once("open", async (err) => {

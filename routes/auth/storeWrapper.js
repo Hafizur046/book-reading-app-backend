@@ -15,7 +15,7 @@ class StoreConstructor {
     };
   }
   all = this.any("all");
-  distroy = this.any("distroy");
+  destroy = this.any("destroy");
   clear = this.any("clear");
   length = this.any("length");
   get = this.any("get");
