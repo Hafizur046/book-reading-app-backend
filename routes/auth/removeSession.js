@@ -16,10 +16,10 @@ function removeSession({ store }) {
       let session = await Session.findOne({ user_id: req.session.userId });
       if (req.params.sid === "me") req.params.sid = req.session.id;
 
-      session.sessions.forEach(async (sessionObject) => {
-        if (req.params.sid !== "all" || req.params.sid !== sessionObject.sid)
+      await session.sessions.forEach(async (sessionObject) => {
+        if (req.params.sid !== "all" && req.params.sid !== sessionObject.sid)
           return;
-        await store.destroy(session.sid);
+        await store.destroy(sessionObject.sid);
       });
 
       session.sessions = session.sessions.reduce(sessionReducer, []);
