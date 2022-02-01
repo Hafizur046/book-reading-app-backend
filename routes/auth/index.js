@@ -6,10 +6,11 @@ module.exports = ({ store }) => {
   const getSessions = require("./getSessions");
   const removeSession = require("./removeSession");
   const getOwnDetails = require("./user");
+  const requiredAuth = require("./requiredAuth");
 
   authRoutes.get("/github", githubAuthRoute);
-  authRoutes.get("/sessions", getSessions);
-  authRoutes.get("/me", getOwnDetails);
-  authRoutes.delete("/remove/:sid", removeSession({ store }));
+  authRoutes.get("/sessions", requiredAuth, getSessions);
+  authRoutes.get("/me", requiredAuth, getOwnDetails);
+  authRoutes.delete("/remove/:sid", requiredAuth, removeSession({ store }));
   return authRoutes;
 };
