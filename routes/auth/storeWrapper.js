@@ -1,6 +1,15 @@
 class StoreConstructor {
   constructor(redisStore) {
     this.redisStore = redisStore;
+
+    // loop though all the methods in the redisStore and add them to the class
+    // as any() methods
+    // this is a bit of a hack, but it works
+    for (let method in redisStore) {
+      if (typeof redisStore[method] === "function") {
+        this[method] = this.any(method);
+      }
+    }
   }
   any(method) {
     return (sid, session) => {
@@ -14,13 +23,6 @@ class StoreConstructor {
       return task;
     };
   }
-  all = this.any("all");
-  destroy = this.any("destroy");
-  clear = this.any("clear");
-  length = this.any("length");
-  get = this.any("get");
-  set = this.any("set");
-  touch = this.any("touch");
 }
 
 module.exports = StoreConstructor;
