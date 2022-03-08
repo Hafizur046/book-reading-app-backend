@@ -12,6 +12,7 @@ const userSubDoc = (indexed) => ({
 });
 
 const roomSchema = new mongoose.Schema({
+  name: { type: String, required: true },
   roomType: { type: String, required: true },
   author: userSubDoc(true),
   currentlyInside: [userSubDoc(false)],
