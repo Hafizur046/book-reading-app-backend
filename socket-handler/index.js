@@ -11,35 +11,47 @@ function SocketHandler(io) {
 
 function sendAvailablePublicRooms({ socket }) {
   return async () => {
-    const rooms = await Room.find({ roomType: "public" });
-    socket.emit("available-public-rooms", rooms);
+    try {
+      const rooms = await Room.find({ roomType: "public" });
+      socket.emit("available-public-rooms", rooms);
+    } catch (err) {
+      console.log(err);
+    }
   };
 }
 
 function joinRoomHandler({ io, socket }) {
   return async (data) => {
-    const room = await Room.findById(data.roomId);
-    if (!room) return;
-    room.currentlyInside.push(data.user);
-    await room.save();
-    socket.join(data.roomId);
-    io.to(data.roomId).emit("user-joined", data.user);
+    try {
+      const room = await Room.findById(data.roomId);
+      if (!room) return;
+      room.currentlyInside.push(data.user);
+      await room.save();
+      socket.join(data.roomId);
+      io.to(data.roomId).emit("user-joined", data.user);
+    } catch (err) {
+      console.log(err);
+    }
   };
 }
 
 function createRoomHandler({ io }) {
   return async (data) => {
-    const room = new Room({
-      name: data.name,
-      roomType: data.roomType,
-      author: data.user,
-      currentlyInside: [],
-      bookUrl: data.bookUrl,
-    });
-    const dbResponse = await room.save();
-    //socket.join(dbResponse._id);
-    if (data.roomType === "public") {
-      io.emit("new-room", { roomId: dbResponse._id });
+    try {
+      const room = new Room({
+        name: data.name,
+        roomType: data.roomType,
+        author: data.user,
+        currentlyInside: [],
+        bookUrl: data.bookUrl,
+      });
+      const dbResponse = await room.save();
+      //socket.join(dbResponse._id);
+      if (data.roomType === "public") {
+        io.emit("new-room", { roomId: dbResponse._id, name: data.name });
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 }
