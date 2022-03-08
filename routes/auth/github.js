@@ -34,6 +34,7 @@ module.exports = async function githubAuthRoute(req, res) {
     await session.save();
 
     req.session.userId = user._id;
+    req.session.avatarUrl = githubAccountInfo.avatar_url;
     req.session.githubId = githubAccountInfo.id;
     req.session.username = githubAccountInfo.login;
 
