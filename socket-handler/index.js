@@ -3,13 +3,13 @@ const { Room } = require("../models");
 function SocketHandler(io) {
   return (socket) => {
     socket.emit("welcome");
-    socket.on("init", sendAvailablePUblicRooms({ io, socket }));
+    socket.on("init", sendAvailablePublicRooms({ io, socket }));
     socket.on("create-room", createRoomHandler({ io, socket }));
     socket.on("join-room", joinRoomHandler({ io, socket }));
   };
 }
 
-function sendAvailablePUblicRooms({ socket }) {
+function sendAvailablePublicRooms({ socket }) {
   return async () => {
     const rooms = await Room.find({ roomType: "public" });
     socket.emit("available-public-rooms", rooms);
@@ -30,6 +30,7 @@ function joinRoomHandler({ io, socket }) {
 function createRoomHandler({ io }) {
   return async (data) => {
     const room = new Room({
+      name: data.name,
       roomType: data.roomType,
       author: data.user,
       currentlyInside: [],
@@ -38,7 +39,7 @@ function createRoomHandler({ io }) {
     const dbResponse = await room.save();
     //socket.join(dbResponse._id);
     if (data.roomType === "public") {
-      io.emit("room-created", { roomId: dbResponse._id });
+      io.emit("new-room", { roomId: dbResponse._id });
     }
   };
 }

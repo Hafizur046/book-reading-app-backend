@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const userSubDoc = (indexed) => ({
+  name: { type: String, required: true },
   username: { type: String, required: true },
   avatarUrl: { type: String, required: true },
   userId: {
