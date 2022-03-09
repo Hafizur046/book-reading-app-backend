@@ -9,7 +9,7 @@ require("dotenv").config();
 //connecting to database
 mongoose.connect(process.env.DB_URI);
 let db = mongoose.connection;
-db.once("open", async (err) => {
+db.once("open", (err) => {
   if (err) console.log(err);
 });
 
