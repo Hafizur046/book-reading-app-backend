@@ -25,9 +25,14 @@ function joinRoomHandler({ io, socket }) {
     try {
       const room = await Room.findById(data.roomId);
       if (!room) return;
-      room.currentlyInside.push(data.user);
+      let isUserInside = false;
+      room.currentlyInside.forEach((user) => {
+        if (user._id === data.user._id) isUserInside = true;
+      });
+      isUserInside || room.currentlyInside.push(data.user);
       await room.save();
       socket.join(data.roomId);
+      socket.emit("room-joined", room);
       io.to(data.roomId).emit("user-joined", data.user);
     } catch (err) {
       console.log(err);
