@@ -51,11 +51,10 @@ function createRoomHandler({ io }) {
         bookUrl: data.bookUrl,
       });
       const dbResponse = await room.save();
-      //socket.join(dbResponse._id);
       if (data.roomType === "public") {
         io.emit("new-room", {
+          _id: dbResponse._id,
           roomType: data.roomType,
-          roomId: dbResponse._id,
           name: data.name,
         });
       }
