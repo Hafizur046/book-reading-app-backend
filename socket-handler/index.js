@@ -27,7 +27,7 @@ function joinRoomHandler({ io, socket }) {
       if (!room) return;
       let isUserInside = false;
       room.currentlyInside.forEach((user) => {
-        if (user._id === data.user._id) isUserInside = true;
+        if (String(user.userId) === String(data.user._id)) isUserInside = true;
       });
       isUserInside || room.currentlyInside.push(data.user);
       await room.save();
