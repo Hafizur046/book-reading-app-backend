@@ -1,7 +1,13 @@
 const { Room } = require("../models");
+const { redisStore } = require("../redis");
+const StoreConstructor = require("../routes/auth/storeWrapper");
 
 function SocketHandler(io) {
-  return (socket) => {
+  return async (socket) => {
+    const store = new StoreConstructor(redisStore);
+    const cookie = socket.handshake.headers.cookie;
+    const sessionId = cookie.split("connect.sid=")[1].split(";")[0];
+    //socket.user = await store.get(sessionId);
     socket.emit("welcome");
     socket.on("init", sendAvailablePublicRooms({ io, socket }));
     socket.on("create-room", createRoomHandler({ io, socket }));
@@ -27,9 +33,10 @@ function joinRoomHandler({ io, socket }) {
       if (!room) return;
       let isUserInside = false;
       room.currentlyInside.forEach((user) => {
-        if (String(user.userId) === String(data.user._id)) isUserInside = true;
+        if (String(user.userId) === String(data.user.userId))
+          isUserInside = true;
       });
-      isUserInside || room.currentlyInside.push(data.user);
+      if (!isUserInside) room.currentlyInside.push(data.user);
       await room.save();
       socket.join(data.roomId);
       socket.emit("room-joined", room);
