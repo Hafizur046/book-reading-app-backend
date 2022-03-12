@@ -1,13 +1,15 @@
 const { Room } = require("../models");
-const { redisStore } = require("../redis");
-const StoreConstructor = require("../routes/auth/storeWrapper");
+const { store } = require("../redis");
+const session = require("express-session");
+//const StoreConstructor = require("../routes/auth/storeWrapper");
 
 function SocketHandler(io) {
   return async (socket) => {
-    const store = new StoreConstructor(redisStore);
+    //const store = new StoreConstructor(redisStore);
     const cookie = socket.handshake.headers.cookie;
     const sessionId = cookie.split("connect.sid=")[1].split(";")[0];
-    //socket.user = await store.get(sessionId);
+    socket.user = await store.get(sessionId);
+    console.log(socket.user);
     socket.emit("welcome");
     socket.on("init", sendAvailablePublicRooms({ io, socket }));
     socket.on("create-room", createRoomHandler({ io, socket }));
