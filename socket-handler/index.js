@@ -1,13 +1,13 @@
 const { Room } = require("../models");
 const { store } = require("../redis");
-const session = require("express-session");
-//const StoreConstructor = require("../routes/auth/storeWrapper");
+const cookie = require("cookie-signature");
 
 function SocketHandler(io) {
   return async (socket) => {
     //const store = new StoreConstructor(redisStore);
     const cookie = socket.handshake.headers.cookie;
-    const sessionId = cookie.split("connect.sid=")[1].split(";")[0];
+    const signedSessionId = cookie.split("connect.sid=")[1].split(";")[0];
+    const sessionId = cookie.unsign(signedSessionId, "keyboard cat");
     socket.user = await store.get(sessionId);
     console.log(socket.user);
     socket.emit("welcome");
