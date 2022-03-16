@@ -1,14 +1,24 @@
 const { Room } = require("../models");
 const { store } = require("../redis");
-const cookie = require("cookie-signature");
+const cookieParser = require("cookie-parser");
+const cookie = require("cookie");
 
 function SocketHandler(io) {
   return async (socket) => {
     //const store = new StoreConstructor(redisStore);
-    const cookie = socket.handshake.headers.cookie;
-    const signedSessionId = cookie.split("connect.sid=")[1].split(";")[0];
-    const sessionId = cookie.unsign(signedSessionId, "keyboard cat");
-    socket.user = await store.get(sessionId);
+    const cookieString = socket.handshake.headers.cookie;
+    if (cookieString) {
+      const cookies = cookie.parse(cookieString);
+      const sessionId = cookieParser.signedCookie(
+        cookies["connect.sid"],
+        process.env.SESSION_SECRET
+      );
+      const user = await store.get(sessionId);
+      if (user.userId) {
+        socket.user = user;
+        socket.emit("user-connected", user);
+      }
+    }
     console.log(socket.user);
     socket.emit("welcome");
     socket.on("init", sendAvailablePublicRooms({ io, socket }));
