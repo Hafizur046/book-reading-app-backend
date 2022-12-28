@@ -14,12 +14,11 @@ function SocketHandler(io) {
         process.env.SESSION_SECRET
       );
       const user = await store.get(sessionId);
-      if (user.userId) {
+      if (user?.userId) {
         socket.user = user;
         socket.emit("user-connected", user);
       }
     }
-    console.log(socket.user);
     socket.emit("welcome");
     socket.on("init", sendAvailablePublicRooms({ io, socket }));
     socket.on("create-room", createRoomHandler({ io, socket }));
