@@ -5,7 +5,6 @@ const cookie = require("cookie");
 
 function SocketHandler(io) {
   return async (socket) => {
-    //const store = new StoreConstructor(redisStore);
     const cookieString = socket.handshake.headers.cookie;
     if (cookieString) {
       const cookies = cookie.parse(cookieString);
