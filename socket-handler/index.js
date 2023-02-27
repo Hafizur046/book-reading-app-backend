@@ -22,6 +22,7 @@ function SocketHandler(io) {
     socket.on("init", sendAvailablePublicRooms({ io, socket }));
     socket.on("create-room", createRoomHandler({ io, socket }));
     socket.on("join-room", joinRoomHandler({ io, socket }));
+    socket.on("location-changed", locationChangedHandler({ socket }));
   };
 }
 
@@ -33,6 +34,12 @@ function sendAvailablePublicRooms({ socket }) {
     } catch (err) {
       console.log(err);
     }
+  };
+}
+
+function locationChangedHandler({ socket }) {
+  return async (location) => {
+    socket.broadcast.emit("location-changed", location);
   };
 }
 
